@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, ParseIntPipe, Patch, Query, Req, Res, UseGuards, UseInterceptors } from '@nestjs/common'; import type { Request, Response } from 'express'; import { createReadStream } from 'node:fs';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query, Req, Res, UseGuards, UseInterceptors } from '@nestjs/common'; import type { Request, Response } from 'express'; import { createReadStream } from 'node:fs';
 import { JwtGuard } from '../auth/jwt.guard'; import { AuthUser, RequestUser } from '../common/auth-user'; import { AuditService } from '../audit/audit.service'; import { BigIntInterceptor } from '../common/bigint.interceptor'; import { UpdateVideoDto } from './dto'; import { VideosService } from './videos.service';
 @Controller('videos') @UseInterceptors(BigIntInterceptor) export class VideosController {
   constructor(private videos: VideosService, private audit: AuditService) {}
@@ -6,6 +6,8 @@ import { JwtGuard } from '../auth/jwt.guard'; import { AuthUser, RequestUser } f
   @Patch(':id') @UseGuards(JwtGuard) async update(@Param('id') id: string, @Body() dto: UpdateVideoDto, @AuthUser() user: RequestUser) { const result = await this.videos.update(id, dto); await this.audit.record(user.id, dto.status ? dto.status : 'RENAME', 'VIDEO', id, dto); return result; }
   @Delete(':id') @UseGuards(JwtGuard) async remove(@Param('id') id: string, @AuthUser() user: RequestUser) { const result = await this.videos.remove(id); await this.audit.record(user.id, 'DELETE', 'VIDEO', id); return result; }
   @Get('public/:publicId') info(@Param('publicId') publicId: string) { return this.videos.publicInfo(publicId); }
+  @Post('public/:publicId/view') view(@Param('publicId') publicId: string) { return this.videos.incrementView(publicId); }
+  @Post('public/:publicId/play') play(@Param('publicId') publicId: string) { return this.videos.incrementPlay(publicId); }
   @Get('public/:publicId/stream') async stream(@Param('publicId') publicId: string, @Req() req: Request, @Res() res: Response) {
     const data = await this.videos.streamInfo(publicId); if (data.disabled) return res.status(HttpStatus.GONE).json({ message: '视频已停用' });
     const { video, path, size } = data; const range = req.headers.range; res.setHeader('Accept-Ranges', 'bytes'); res.setHeader('Content-Type', video.mimeType || 'application/octet-stream'); res.setHeader('Content-Disposition', 'inline');

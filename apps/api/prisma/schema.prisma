@@ -46,6 +46,8 @@ model Video {
   mimeType String
   extension String
   size BigInt
+  viewCount Int @default(0)
+  playCount Int @default(0)
   status VideoStatus @default(ACTIVE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
