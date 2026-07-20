@@ -1,0 +1,31 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost}
+      DATABASE_URL: file:/app/data/video-service.db
+      STORAGE_DIR: /app/data/videos
+      UPLOAD_TEMP_DIR: /app/data/tmp
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      SUPER_ADMIN_USERNAME: ${SUPER_ADMIN_USERNAME:-admin}
+      SUPER_ADMIN_PASSWORD: ${SUPER_ADMIN_PASSWORD:?SUPER_ADMIN_PASSWORD is required}
+      UPLOAD_WARNING_BYTES: ${UPLOAD_WARNING_BYTES:-20971520}
+      UPLOAD_CHUNK_BYTES: ${UPLOAD_CHUNK_BYTES:-5242880}
+      UPLOAD_SESSION_HOURS: ${UPLOAD_SESSION_HOURS:-24}
+      LOGIN_RATE_LIMIT: ${LOGIN_RATE_LIMIT:-10}
+    volumes:
+      - ./data:/app/data
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    depends_on: [api]
+    ports:
+      - "${HTTP_PORT:-80}:80"

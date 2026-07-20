@@ -1,0 +1,17 @@
+{
+  "name": "video-service",
+  "private": true,
+  "version": "1.0.0",
+  "packageManager": "yarn@1.22.22",
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"yarn workspace @video/api dev\" \"yarn workspace @video/web dev\"",
+    "build": "yarn workspace @video/api build && yarn workspace @video/web build",
+    "test": "yarn workspace @video/api test",
+    "db:generate": "yarn workspace @video/api db:generate",
+    "db:bootstrap": "yarn workspace @video/api db:bootstrap",
+    "db:seed": "yarn workspace @video/api db:seed"
+  },
+  "devDependencies": {"concurrently": "^9.2.1"},
+  "engines": {"node": ">=20"}
+}

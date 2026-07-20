@@ -1,0 +1,3 @@
+import { defineStore } from 'pinia'; import { ref } from 'vue'; import { http } from '@/api/http';
+export interface User { id:string; username:string; role:'SUPER_ADMIN'|'ADMIN' }
+export const useAuthStore=defineStore('auth',()=>{ const user=ref<User|null>(null); async function load(){ try{user.value=(await http.get('/auth/me')).data;return true}catch{return false} } async function login(username:string,password:string){user.value=(await http.post('/auth/login',{username,password})).data} async function logout(){await http.post('/auth/logout');user.value=null} return{user,load,login,logout}; });
