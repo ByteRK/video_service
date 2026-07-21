@@ -91,6 +91,8 @@ docker compose up -d --build
 
 上传大小没有业务层上限。若调整分片超过 8 MB，需要同步增大 `deploy/nginx.conf` 中的 `client_max_body_size`。
 
+非 Docker 开发环境修改根目录 `.env` 中的 `PORT` 后，NestJS 监听端口和 Vite `/api` 代理会同步变更，无需再修改前端配置。
+
 ## 播放兼容性
 
 服务端保留原文件且不转码。是否能播放取决于客户端对文件封装、视频编码和音频编码的支持。MP4（H.264 + AAC）兼容范围通常最好。公开视频接口支持 HTTP Range，可拖动进度并按需加载。
